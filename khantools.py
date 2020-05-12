@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def report1 (dataframe,n_highest_counts):
     ''' Returns a dataframe reporting on the value counts of input frame,
