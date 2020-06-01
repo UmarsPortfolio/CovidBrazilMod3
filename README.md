@@ -12,6 +12,10 @@ The dataset used in this project comes from the Hospital Israelita Albert Einste
 
 The data set contains around 5000 records and consists of over 100 features. The biggest challenge with this dataset was the enormous amount of missing data. This absence of data points is partly due to the nature of the problem itself. Most of the records are for patients that were never admitted at all, and labs were only performed on patients who were. Since most of the features relate to lab test results, we have many features empty for many records on account of the fact that the labs were never performed. 
 
+The following chart ranks the features by most data contained to most empty. The fill levels are shown seperatelyfor admitted patients and not admitted patients. 
+
+<img src='Images/feature_fills'>
+
 Additionaly, there is strong class imbalance between not hospitalized, regular ward and intensive care patients. 
 
 # Methodology
@@ -20,7 +24,7 @@ To address the challenge of missing data, I have employed an iterative regressio
 
 As for developing the actual model, I fit a variety of models to the data nd selected the best one. The following dataframe shows the performance metrics for each class with each model variant. 
 
-<img src='model_results.png'>
+<img src='Images/model_results.png'>
 
 To verify the coefficients computed by the best model, I used hypothesis testing to compare the means of features between admited and not admitted patients to see if there was a statistically significant difference those two populations for that feature. The idea is, that is a significant difference exists, then those features do in fact bear heavily on determing which category a patient will fall into. 
 
