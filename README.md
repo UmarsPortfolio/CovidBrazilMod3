@@ -30,7 +30,7 @@ A Logistic Regression model using SMOTE to address the imbalance issue appears t
 
 The following chart shows the most important features identified by the model. 
 
-<img source='Images/feature_importance.png'>
+<img src='Images/feature_importance.png'>
 
 # Recommendations
 
