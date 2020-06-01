@@ -1,5 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as stats
+from statsmodels.stats.multicomp import MultiComparison 
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 def report1 (dataframe,n_highest_counts):
     ''' Returns a dataframe reporting on the value counts of input frame,
@@ -382,3 +386,115 @@ def multi_reg_model(dataframe,dictionary,target,rem_pvals = False, test_size = 0
     display(report)
     
     return df,model,report
+
+
+def Cohen_d(control, experiment):
+   
+    diff = experiment.mean() - control.mean()
+
+    n1, n2 = len(experiment), len(control)
+    var1 = experiment.var()
+    var2 = control.var()
+
+    # Calculate the pooled threshold as shown earlier
+    pooled_var = (n1 * var1 + n2 * var2) / (n1 + n2)
+    
+    # Calculate Cohen's d statistic
+    d = diff / np.sqrt(pooled_var)
+    
+    return d
+
+def monte_carlo(a,b,size):
+    """  Runs a monte carlo simulations on two pandas series (a and b)  """
+    
+
+    diff_mu_a_b = np.mean(b) - np.mean(a)
+    num = 0
+    denom = 0
+    union = a.append(b,ignore_index=True)
+       
+    
+    for i in range(size):
+       
+        
+        ai = union.sample(len(a))
+        
+        
+        bi = union.drop(ai.index)
+                 
+        diff_mu_ai_bi = np.mean(bi) - np.mean(ai)
+        
+        if diff_mu_ai_bi >= diff_mu_a_b:
+            num +=1
+            
+        denom += 1
+        
+    p_val = num/denom
+    print("In {} samples, The difference in mean between the experimental group and control group was higher than the observed values {} % percent of the time".format(size,p_val*100))
+    return p_val
+
+def hyp_test_mean(control,experiment,detail=False):
+    
+    """ Tests the null hypothesis that an experimental sample comes from the same population as a control sample
+        Runs a students t-test, a Welch's t-test and a Mann Whitney test, and then indicated which results are most reliable
+        based on whether the assumptions for each respective test have been met or not. 
+
+        Samples must be passed in as pandas series. 
+    """
+    
+# 1. Test variances
+    w,p_same_var = stats.levene(control,experiment)
+# 2. Test nromality
+    w,p_norm_a = stats.normaltest(control)
+    w,p_norm_b = stats.normaltest(experiment)
+    
+# 3. Run tests
+    
+    t_test_result = stats.ttest_ind(control,experiment)[1]
+    welch_result = stats.ttest_ind(control,experiment,equal_var=False)[1]
+    mann_whitney_u = stats.mannwhitneyu(control,experiment)[1]
+    
+# 4. Choose best test
+
+    norm_pass = ((p_norm_a >= 0.05) and (p_norm_b >= 0.05)) or ( (len(control) > 50) and (len(experiment) > 50) )
+    var_pass = p_same_var >= 0.05
+    
+    if var_pass and norm_pass:
+        t_test_notes = "1 !!Best Test!!"
+        welch_notes = "not used; t-test assumptions met"
+        mann_whitney_u_notes = "not needed; t-test assumptions met"
+        best_test = t_test_result
+    elif norm_pass and not var_pass:
+        welch_notes = "1 !!Best Test!!"
+        t_test_notes = "not used: assumptions not met"
+        mann_whitney_u_notes = "not needed: Welch's assumptions met"
+        best_test = welch_result
+    else:
+        welch_notes = "not used: assumptions not met"
+        t_test_notes = "not used: assumptions not met"
+        mann_whitney_u_notes = "1 !!Best Test!!"
+        best_test = mann_whitney_u
+
+# 5. results in df
+    test_name = ['t_test','Welch\'s t-test','Mann Whitney U']
+    df_dict={
+        'Difference in means': [0,(np.mean(experiment) - np.mean(control))],
+        'Cohen\'s d': [0,Cohen_d(control,experiment)],
+        'Sample A normality':[p_norm_a,'0'],
+        'Samp B normality':[p_norm_b,'0'],
+        'Variance similarity': [p_same_var,'0'],
+        't_test':[t_test_result,t_test_notes],
+        'Welch\'s t-test' :[welch_result,welch_notes],
+        'Mann Whitney U':[mann_whitney_u,mann_whitney_u_notes]
+        
+    }
+    
+    df = pd.DataFrame.from_dict(df_dict,orient = 'index',columns=['p_value','notes'])
+    df['Null Rejected'] = (df['p_value'] < 0.05)
+    df['p_value'].round(4)
+    
+    
+    if detail == True:
+        return df
+    else:
+        return best_test
