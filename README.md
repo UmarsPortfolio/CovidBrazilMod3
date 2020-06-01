@@ -20,7 +20,7 @@ To address the challenge of missing data, I have employed an iterative regressio
 
 As for developing the actual model, I fit a variety of models to the data nd selected the best one. The following dataframe shows the performance metrics for each class with each model variant. 
 
-<img source='resultsdf.png'>
+<img src='model_results.png'>
 
 To verify the coefficients computed by the best model, I used hypothesis testing to compare the means of features between admited and not admitted patients to see if there was a statistically significant difference those two populations for that feature. The idea is, that is a significant difference exists, then those features do in fact bear heavily on determing which category a patient will fall into. 
 
@@ -31,6 +31,10 @@ A Logistic Regression model using SMOTE to address the imbalance issue appears t
 The following chart shows the most important features identified by the model. 
 
 <img src='Images/feature_importance.png'>
+
+The following dataframe shows the results of conducting relevant hypothesis tests on the means of the top features for the not admitted and admitted populations. We see that in most cases, the null hypothesis that the means are not statistically significant between the two populations has been rejected. 
+
+<img src='Images/hyp_tests.png'>
 
 # Recommendations
 
