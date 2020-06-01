@@ -14,7 +14,7 @@ The data set contains around 5000 records and consists of over 100 features. The
 
 The following chart ranks the features by most data contained to most empty. The fill levels are shown seperatelyfor admitted patients and not admitted patients. 
 
-<img src='Images/feature_fills'>
+<img src='Images/feature_fills.png'>
 
 Additionaly, there is strong class imbalance between not hospitalized, regular ward and intensive care patients. 
 
